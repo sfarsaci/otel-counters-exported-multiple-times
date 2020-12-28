@@ -1,8 +1,10 @@
-import io.opentelemetry.api.OpenTelemetry;
 import io.opentelemetry.api.common.Labels;
+import io.opentelemetry.api.metrics.GlobalMetricsProvider;
 import io.opentelemetry.api.metrics.LongCounter;
+import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.exporters.logging.LoggingMetricExporter;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.IntervalMetricReader;
 
 import static java.util.Collections.singletonList;
@@ -16,7 +18,7 @@ public class Main {
         final IntervalMetricReader intervalMetricReader = setupMetricsReader();
 
         range(0, 10).forEach((i) -> {
-            final LongCounter recorder = OpenTelemetry.getGlobalMeter("test").longCounterBuilder("counter-name").build();
+            final LongCounter recorder = GlobalMetricsProvider.get().get("test").longCounterBuilder("counter-name").build();
 
             final Labels labels = Labels.builder()
                     .put("spanId", randomUUID().toString())
@@ -36,9 +38,10 @@ public class Main {
     }
 
     private static IntervalMetricReader setupMetricsReader() {
+        final SdkMeterProvider sdkMeterProvider = (SdkMeterProvider) GlobalMetricsProvider.get();
         return IntervalMetricReader.builder()
                 .setExportIntervalMillis(500)
-                .setMetricProducers(singletonList(OpenTelemetrySdk.getGlobalMeterProvider().getMetricProducer()))
+                .setMetricProducers(singletonList(sdkMeterProvider.getMetricProducer()))
                 .setMetricExporter(new LoggingMetricExporter()).build();
     }
 }
