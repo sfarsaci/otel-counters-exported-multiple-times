@@ -1,9 +1,7 @@
 import io.opentelemetry.api.common.Labels;
 import io.opentelemetry.api.metrics.GlobalMetricsProvider;
 import io.opentelemetry.api.metrics.LongCounter;
-import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.exporters.logging.LoggingMetricExporter;
-import io.opentelemetry.sdk.OpenTelemetrySdk;
 import io.opentelemetry.sdk.metrics.SdkMeterProvider;
 import io.opentelemetry.sdk.metrics.export.IntervalMetricReader;
 
@@ -18,13 +16,15 @@ public class Main {
         final IntervalMetricReader intervalMetricReader = setupMetricsReader();
 
         range(0, 10).forEach((i) -> {
-            final LongCounter recorder = GlobalMetricsProvider.get().get("test").longCounterBuilder("counter-name").build();
+            final LongCounter recorder = GlobalMetricsProvider.get().get("test")
+                    .longCounterBuilder("counter-name")
+                    .build();
 
             final Labels labels = Labels.builder()
                     .put("spanId", randomUUID().toString())
                     .build();
 
-            recorder.bind(labels).add(1);
+            recorder.add(1, labels);
 
             try {
                 Thread.sleep(1000);

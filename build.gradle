@@ -12,5 +12,4 @@ repositories {
 dependencies {
     compile group: 'io.opentelemetry', name: 'opentelemetry-sdk', version: '0.13.1'
     compile group: 'io.opentelemetry', name: 'opentelemetry-exporters-logging', version: '0.9.1'
-    testCompile group: 'junit', name: 'junit', version: '4.12'
 }
